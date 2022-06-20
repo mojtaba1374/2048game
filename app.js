@@ -45,135 +45,308 @@ const randomIndexUpToNumber = (num) => {
 
 // in tabe ra bad az inke gridbandi html css kardi toye js akharesh run kon
 const initFillArr = () => {
-    for(let i = 0; i < 2; i++) {
+    for(let i = 0; i < 7; i++) {
         let rndIndex = randomIndexUpToNumber(existLocation.length - 1);
         let rowGameArray = existLocation[rndIndex][0];
         let colGameArray = existLocation[rndIndex][1];
         existLocation.splice(rndIndex, 1);
         gameStateArray[rowGameArray][colGameArray] = 2;
     }
-    console.log(existLocation);
+    console.log('initial existLocation', existLocation);
 };
 
 
 const insertionNewElement = () => {
     let rndIndex = randomIndexUpToNumber(existLocation.length - 1);
-    let rowGameArray = existLocation[rndIndex][0];
-    let colGameArray = existLocation[rndIndex][1];
+    let rowLocation = existLocation[rndIndex][0];
+    let colLocation = existLocation[rndIndex][1];
     existLocation.splice(rndIndex, 1);
-    gameStateArray[rowGameArray][colGameArray] = 2;
-    // console.log(existLocation);
+    gameStateArray[rowLocation][colLocation] = 2;
+    console.log(existLocation);
     // console.log(logger(gameStateArray));
 };
 
-// console.log(existLocation);
+const updateRowKeyExistLoc = (rowIdx, colIdx, fFIdx) => {
+    let changedExistLocation = existLocation.map(elm => {
+        if(elm[0] === rowIdx && elm[1] === fFIdx) {
+            return [rowIdx, colIdx];
+        } else {
+            return elm;
+        }
+    });
+    existLocation = changedExistLocation;
+};
 
-const collectNumber = () => {
-    
+const updateColKeyExistLoc = (i, j, fFIdx) => {
+    let changedExistLocation = existLocation.map(elm => {
+        if(elm[0] === fFIdx && elm[1] === j) {
+            return [i, j];
+        } else {
+            return elm;
+        }
+    });
+    existLocation = changedExistLocation;
+};
+
+
+const collectNumberLeftDir = () => {
+
     for(let i = 0; i < gameStateArray.length; i++) {
         for (let j = 0; j < gameStateArray.length; j++) {
-            if(gameStateArray[i][j] === gameStateArray[i][j+1] && gameStateArray[i][j+1] !== false) {
+
+            if(gameStateArray[i][j] === false) {
+                const existIdx = existLocation.findIndex(elm => elm[0] === i && elm[1] === j);
+                if (existIdx === -1) {
+                    existLocation.push([i, j]);
+                }
+            }
+            
+            if(gameStateArray[i][j] === gameStateArray[i][j+1] && gameStateArray[i][j] !== false) {
                 gameStateArray[i][j] += gameStateArray[i][j+1];
                 gameStateArray[i].splice(j+1, 1);
                 gameStateArray[i].push(false);
-                // update existLocation
-                existLocation.push([i, gameStateArray.length - 1]);
             }
+
         }
     }
+    // console.log(existLocation);
 };
 
 const leftKeyHandler = () => {
 
     for(let i = 0; i < gameStateArray.length; i++) {
-        let fFIdx = null;  //first false Index
+        let fFIdx;
         for(let j = 0; j < gameStateArray.length; j++) {
-
             if(gameStateArray[i][j] === false) {
-                if(fFIdx !== null) continue;
                 fFIdx = j;
+                break;
             }
-    
-            if(gameStateArray[i][j] !== false && fFIdx !== null) {
+        }
+
+        for(let j = fFIdx; j < gameStateArray.length; j++) {
+
+            if(gameStateArray[i][j] !== false) {
                 gameStateArray[i][fFIdx] = gameStateArray[i][j];
                 gameStateArray[i][j] = false;
                 // update existLocation
-                let changedExistLocation = existLocation.map(elm => {
-                    if(elm[0] === i && elm[1] === fFIdx) {
-                        return [i, j];
-                    } else {
-                        return elm;
-                    }
-                });
-                existLocation = changedExistLocation;
+                updateRowKeyExistLoc(i, j, fFIdx);
                 fFIdx += 1;
             }
-
         }
     }
-    collectNumber();
+
+    collectNumberLeftDir();
     insertionNewElement();
-    console.log(existLocation);
+
+    // console.log(existLocation);
     console.log(logger(gameStateArray));
 };
 
-const topKeyHandler = () => {
-
-};
-
-const rightCollectNumber = () => {
+const collectNumberRightDir = () => {
     for(let i = 0; i < gameStateArray.length; i++) {
         for (let j = gameStateArray.length - 1; j >= 0; j--) {
-            if(gameStateArray[i][j] === gameStateArray[i][j-1] && gameStateArray[i][j-1] !== false) {
+            if(gameStateArray[i][j] === false) {
+                const existIdx = existLocation.findIndex(elm => elm[0] === i && elm[1] === j);
+                if (existIdx === -1) {
+                    existLocation.push([i, j]);
+                }
+            }
+            
+            if(gameStateArray[i][j] === gameStateArray[i][j-1] && gameStateArray[i][j] !== false) {
                 gameStateArray[i][j] += gameStateArray[i][j-1];
                 gameStateArray[i].splice(j-1, 1);
                 gameStateArray[i].unshift(false);
-                // update existLocation
-                existLocation.push([i, 0]);
             }
         }
     }
+    // console.log(existLocation);
 };
 
 const rightKeyHandler = () => {
-    for(let i = 0; i < gameStateArray.length; i++) {
-        let fFIdx = null;  //first false Index
-        for(let j = gameStateArray.length - 1; j >= 0 ; j--) {
 
+    for(let i = 0; i < gameStateArray.length; i++) {
+
+        let fFIdx;
+        for(let j = gameStateArray.length - 1; j >= 0; j--) {
             if(gameStateArray[i][j] === false) {
-                if(fFIdx !== null) continue;
                 fFIdx = j;
+                break;
             }
+        }
+        for(let j = fFIdx; j >= 0 ; j--) {
             
-            if(gameStateArray[i][j] !== false && fFIdx !== null) {
+            if(gameStateArray[i][j] !== false) {
                 gameStateArray[i][fFIdx] = gameStateArray[i][j];
                 gameStateArray[i][j] = false;
                 // update existLocation
-                let changedExistLocation = existLocation.map(elm => {
-                    if(elm[0] === i && elm[1] === fFIdx) {
-                        return [i, j];
-                    } else {
-                        return elm;
-                    }
-                });
-                existLocation = changedExistLocation;
+                updateRowKeyExistLoc(i, j, fFIdx);
                 fFIdx -= 1;
+            }
+        }
+    }
+
+    collectNumberRightDir();
+    insertionNewElement();
+
+    // console.log(existLocation);
+    console.log(logger(gameStateArray));
+};
+
+const collectNumberToptDir = () => {
+    for(let j = 0; j < gameStateArray.length; j++) {
+        for(let i = 0; i < gameStateArray.length; i++) {
+            
+            if(gameStateArray[i][j] === false) {
+                const existIdx = existLocation.findIndex(elm => elm[0] === i && elm[1] === j);
+                if (existIdx === -1) {
+                    existLocation.push([i, j]);
+                }
+                continue;
+            }
+
+            if(gameStateArray[i][j] !== false && i + 1 < gameStateArray.length && gameStateArray[i][j] === gameStateArray[i+1][j]) {
+                gameStateArray[i][j] += gameStateArray[i+1][j];
+                let count = i + 1;
+                while(count < gameStateArray.length - 1) {
+                    gameStateArray[count][j] = gameStateArray[count + 1][j];
+                    count++;
+                }
+                gameStateArray[count][j] = false;
+            }
+    
+        }
+    }
+
+    // console.log(existLocation);
+};
+
+const topKeyHandler = () => {
+    for(let j = 0; j < gameStateArray.length; j++) {
+
+        let fFIdx = null;
+        for(let i = 0; i < gameStateArray.length ; i++) {
+
+            if(gameStateArray[i][j] === false) {
+                if(fFIdx !== null) continue;
+                fFIdx = i;
+            }
+
+            if(gameStateArray[i][j] !== false && fFIdx !== null) {
+                gameStateArray[fFIdx][j] = gameStateArray[i][j];
+                gameStateArray[i][j] = false;
+                // update existLocation
+                updateColKeyExistLoc(i, j, fFIdx);
+                fFIdx += 1;
+            }
+        }
+
+        // let fFIdx;
+        // for(let i = 0; i < gameStateArray.length; i++) {
+        //     if(gameStateArray[i][j] === false) {
+        //         fFIdx = i;
+        //     }
+        //     break;
+        // }
+
+        // if(!!fFIdx) {
+        //     for(let i = fFIdx; i < gameStateArray.length ; i++) {
+        //         if(gameStateArray[i][j] !== false) {
+        //             gameStateArray[fFIdx][j] = gameStateArray[i][j];
+        //             gameStateArray[i][j] = false;
+        //             // update existLocation
+        //             updateColKeyExistLoc(i, j, fFIdx);
+        //             fFIdx += 1;
+        //         }
+        //     }
+        // }
+    }
+
+    collectNumberToptDir();
+    insertionNewElement();
+
+    // console.log(existLocation);
+    console.log(logger(gameStateArray));
+
+};
+
+const collectNumberbottomDir = () => {
+
+    for(let j = 0; j < gameStateArray.length; j++) {
+        for(let i = gameStateArray.length - 1; i >= 0; i--) {
+
+            if(gameStateArray[i][j] === false) {
+                const existIdx = existLocation.findIndex(elm => elm[0] === i && elm[1] === j);
+                if (existIdx === -1) {
+                    existLocation.push([i, j]);
+                }
+            }
+
+            if(gameStateArray[i][j] !== false && i - 1 > 0 && gameStateArray[i][j] === gameStateArray[i-1][j]) {
+                gameStateArray[i][j] += gameStateArray[i-1][j];
+                let count = i - 1;
+                while(count > 0) {
+                    gameStateArray[count][j] = gameStateArray[count - 1][j];
+                    count--;
+                }
+                gameStateArray[count][j] = false;
             }
 
         }
     }
-    // collect number ra baraye right benvisam
-    rightCollectNumber();
-    insertionNewElement();
-
-    console.log(logger(gameStateArray));
-    console.log(existLocation);
+    
+    // console.log(existLocation);
 };
 
 const bottomKeyHandler = () => {
 
-};
+    for(let j = 0; j < gameStateArray.length; j++) {
 
+        let fFIdx = null;
+        for(let i = gameStateArray.length - 1; i >= 0 ; i--) {
+            if(gameStateArray[i][j] === false) {
+                if(fFIdx !== null) continue;
+                fFIdx = i;
+            }
+                
+            if(gameStateArray[i][j] !== false && fFIdx !== null) {
+                gameStateArray[fFIdx][j] = gameStateArray[i][j];
+                gameStateArray[i][j] = false;
+                // update existLocation
+                updateColKeyExistLoc(i, j, fFIdx);
+                fFIdx -= 1;
+            }
+        }
+
+
+        // let fFIdx;
+        // for (let i = gameStateArray.length - 1; i >= 0 ; i--) {
+        //     if(gameStateArray[i][j] === false) {
+        //         fFIdx = i;
+        //         break;
+        //     }
+        // }
+
+        // if(!!fFIdx) {
+        //     for(let i = fFIdx; i >= 0 ; i--) {
+                
+        //         if(gameStateArray[i][j] !== false) {
+        //             gameStateArray[fFIdx][j] = gameStateArray[i][j];
+        //             gameStateArray[i][j] = false;
+        //             // update existLocation
+        //             updateColKeyExistLoc(i, j, fFIdx);
+        //             fFIdx -= 1;
+        //         }
+        //     }
+        // }
+    }
+
+    collectNumberbottomDir();
+    insertionNewElement();
+
+    console.log(logger(gameStateArray));
+    // console.log(existLocation);
+
+};
 
 const checkKey = event => {
     switch (event.keyCode) {
@@ -200,43 +373,3 @@ document.addEventListener('keydown', checkKey);
 initFillArr();
 
 console.log(logger(gameStateArray));
-
-// const testArr = [2, 2, false, false, 2, 2, 2, 2, false, 2, false];
-
-// const shiftArr = (array) => {
-//     let arr = array;
-//     let fFIdx = null;
-//     for(let i = 0; i < arr.length; i++) {
-
-//         if(arr[i] === false) {
-//             if(fFIdx !== null) continue;
-//             fFIdx = i;
-//         }
-
-//         if(arr[i] !== false && fFIdx !== null) {
-//             arr[fFIdx] = arr[i];
-//             arr[i] =false;
-//             fFIdx += 1;
-//             // console.log(fFIdx);
-//         }
-//     }
-    
-//     console.log(arr);
-// };
-
-// shiftArr(testArr);
-
-// const collectNumber = (arr) => {
-    
-//     for(let i = 0; i < arr.length; i++) {
-//         if(arr[i] === arr[i+1] && arr[i] !== false) {
-//             arr[i] += arr[i+1];
-//             arr.splice(i+1, 1);
-//             arr.push(false);
-//         }
-//     }
-    
-//     console.log(testArr);
-// };
-
-// collectNumber(testArr)
