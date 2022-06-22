@@ -1,5 +1,21 @@
+// you can change number of Rows in R constant variable
 const R = 4;
-const C = 4;
+const C = R;
+
+let score = 0;
+
+const scoreElm = document.getElementById('score-box');
+const replayBox = document.querySelector('.retry-game');
+
+const replayGame = () => {
+    location.reload();
+}
+
+replayBox.addEventListener('click', replayGame);
+
+const updateScore = (score) => {
+    scoreElm.innerHTML = score;
+};
 
 const logger = arr => {
     let arrStr = '';
@@ -30,6 +46,57 @@ const createGameStateArray = () => {
 
 const gameStateArray = createGameStateArray();
 
+// this function should have render after initialize element
+
+const setGridTemplateValue = (R) => {
+    let gridTempVal = '';
+    for(let i = 0; i < R; i++) {
+        gridTempVal += ' auto ';
+    }
+    return gridTempVal;
+}
+const createGameGrid = () => {
+    const gameBoard = document.getElementById('gameBoard');
+    let gridTemplateValue;
+    const elmWidth = 60;
+    const gapBetweenElms = 5;
+    let gameBoardWidth = (R * elmWidth + (R - 1) * gapBetweenElms) + 'px';
+
+    gridTemplateValue = setGridTemplateValue(R);
+
+    gameBoard.style['width'] = gameBoardWidth;
+    gameBoard.style['gridTemplateColumns'] = gridTemplateValue;
+
+    for(let i = 0; i < R; i++) {
+        for(let j = 0; j < C; j++) {
+            let box = document.createElement('div');
+            box.id = `box-${i}-${j}`;
+            gameBoard.append(box);
+        }
+    }
+
+    initFillArr();
+    
+};
+
+const insertionElmToUi = (i, j, val) => {
+    const box = document.getElementById(`box-${i}-${j}`);
+    const fillerBox = document.createElement('div');
+
+    fillerBox.innerText = val;
+    fillerBox.classList.add('filler-box', 'insertion-animate');
+    fillerBox.style['background-color'] = pickColor(val);
+    box.append(fillerBox);
+};
+
+// const updateBoxValueInUi = (i, j, val) => {
+//     const box = document.getElementById(`box-${i}-${j}`);
+//     const fillerBox = document.createElement('div');
+
+//     fillerBox.innerHTML = val;
+//     fillerBox.classList.add('filler-box');
+//     box.append(fillerBox);
+// };
 
 let existLocation = [];
 
@@ -43,27 +110,31 @@ const randomIndexUpToNumber = (num) => {
     return Math.floor(Math.random() * num);
 };
 
-// in tabe ra bad az inke gridbandi html css kardi toye js akharesh run kon
-const initFillArr = () => {
-    for(let i = 0; i < 7; i++) {
-        let rndIndex = randomIndexUpToNumber(existLocation.length - 1);
-        let rowGameArray = existLocation[rndIndex][0];
-        let colGameArray = existLocation[rndIndex][1];
-        existLocation.splice(rndIndex, 1);
-        gameStateArray[rowGameArray][colGameArray] = 2;
-    }
-    console.log('initial existLocation', existLocation);
-};
-
-
 const insertionNewElement = () => {
+    if(existLocation.length === 0) {
+        return;
+    }
     let rndIndex = randomIndexUpToNumber(existLocation.length - 1);
     let rowLocation = existLocation[rndIndex][0];
     let colLocation = existLocation[rndIndex][1];
     existLocation.splice(rndIndex, 1);
     gameStateArray[rowLocation][colLocation] = 2;
+    insertionElmToUi(rowLocation, colLocation, 2);
     console.log(existLocation);
     // console.log(logger(gameStateArray));
+};
+
+// in tabe ra bad az inke gridbandi html css kardi toye js akharesh run kon
+const initFillArr = () => {
+    for(let i = 0; i < 2; i++) {
+        let rndIndex = randomIndexUpToNumber(existLocation.length - 1);
+        let rowGameArray = existLocation[rndIndex][0];
+        let colGameArray = existLocation[rndIndex][1];
+        existLocation.splice(rndIndex, 1);
+        gameStateArray[rowGameArray][colGameArray] = 2;
+        insertionElmToUi(rowGameArray, colGameArray, 2);
+    }
+    console.log('initial existLocation', existLocation);
 };
 
 const updateRowKeyExistLoc = (rowIdx, colIdx, fFIdx) => {
@@ -88,8 +159,113 @@ const updateColKeyExistLoc = (i, j, fFIdx) => {
     existLocation = changedExistLocation;
 };
 
+// const animateForCollect = (fIdx, sIdx, side) => {
+//     const firstBox = document.getElementById(`box-${fIdx[0]}-${fIdx[1]}`);
 
-const collectNumberLeftDir = () => {
+//     const secondBox = document.getElementById(`box-${sIdx[0]}-${sIdx[1]}`);
+//     const fillerDiv = secondBox.querySelector('div');
+
+//     fillerDiv.classList.remove('insertion-animate');
+//     fillerDiv.innerText = gameStateArray[fIdx[0]][fIdx[1]];
+    
+//     firstBox.innerHTML = '';
+//     firstBox.append(fillerDiv);
+
+//     secondBox.innerHTML = '';
+// };
+
+// const animateForMove = (fIdx, sIdx, side) => {
+
+//     const firstBox = document.getElementById(`box-${fIdx[0]}-${fIdx[1]}`);
+
+//     const secondBox = document.getElementById(`box-${sIdx[0]}-${sIdx[1]}`);
+//     const fillerDiv = secondBox.querySelector('div');
+
+//     // let numberBoxMoved = sIdx[1] - fIdx[1];
+//     // console.log('number', numberBoxMoved);
+
+//     fillerDiv.classList.remove('insertion-animate');
+
+//     firstBox.append(fillerDiv);
+
+//     secondBox.innerHTML = '';
+// };
+
+const pickColor = (elm) => {
+    let color;
+    switch (elm) {
+        case 2:
+            color = '#fbf2f2';
+            break;
+        case 4:
+            color = '#f6e6af';
+            break;
+        case 8:
+            color = '#fac986';
+            break;
+        case 16:
+            color = '#fb974b';
+            break;
+        case 32:
+            color = '#f85d5d';
+            break;
+        case 64:
+            color = '#ff6532';
+            break;
+        case 128:
+            color = '#fbf359';
+            break;
+        case 256:
+            color = '#f3e81d';
+            break;
+        case 512:
+            color = '#036458';
+            break;
+        case 1024:
+            color = '#49A86E';
+            break;
+        case 2048:
+            color = '#5eeb71';
+            break;
+        case 4096:
+            color = '#DAD806';
+            break;
+        case 8192:
+            color = '#1E325B';
+            break;
+        default:
+            color = 'orange';
+            break;
+    }
+    return color;
+}
+
+const fillUiGrid = () => {
+    let i = 0;
+    gameStateArray.forEach(row => {
+        let j = 0;
+        row.forEach(elm => {
+            let box = document.getElementById( `box-${i}-${j}`);
+            if(box.innerHTML !== '') {
+                box.innerHTML = '';
+            }
+            if(elm !== false) {
+                box.innerHTML = `
+                    <div class="filler-box">
+                        ${elm}
+                    </div>
+                `;
+                box.querySelector('div').style['background-color'] = pickColor(elm);
+            }
+            j++;
+        })
+        i++;
+    })
+};
+
+const collectNumberLeftDir = (haveInsertedElm) => {
+
+    let shouldInsertNewElm = false;
 
     for(let i = 0; i < gameStateArray.length; i++) {
         for (let j = 0; j < gameStateArray.length; j++) {
@@ -101,18 +277,31 @@ const collectNumberLeftDir = () => {
                 }
             }
             
-            if(gameStateArray[i][j] === gameStateArray[i][j+1] && gameStateArray[i][j] !== false) {
+            if(gameStateArray[i][j] === gameStateArray[i][j+1] && j + 1 < gameStateArray.length && gameStateArray[i][j] !== false) {
                 gameStateArray[i][j] += gameStateArray[i][j+1];
+                shouldInsertNewElm = true;
+                score += gameStateArray[i][j];
+                console.log(score);
                 gameStateArray[i].splice(j+1, 1);
                 gameStateArray[i].push(false);
             }
 
         }
     }
+
+
+    fillUiGrid();
+    if(shouldInsertNewElm && !haveInsertedElm) {
+        insertionNewElement();
+    }
+    // shouldInsertNewElm && insertionNewElement();
+    updateScore(score);
     // console.log(existLocation);
 };
 
 const leftKeyHandler = () => {
+
+    let shouldInsertNewElm = false;
 
     for(let i = 0; i < gameStateArray.length; i++) {
         let fFIdx;
@@ -126,7 +315,9 @@ const leftKeyHandler = () => {
         for(let j = fFIdx; j < gameStateArray.length; j++) {
 
             if(gameStateArray[i][j] !== false) {
+                shouldInsertNewElm = true;
                 gameStateArray[i][fFIdx] = gameStateArray[i][j];
+                // animateForMove([i,fFIdx], [i, j], 'left');
                 gameStateArray[i][j] = false;
                 // update existLocation
                 updateRowKeyExistLoc(i, j, fFIdx);
@@ -135,14 +326,17 @@ const leftKeyHandler = () => {
         }
     }
 
-    collectNumberLeftDir();
-    insertionNewElement();
+    collectNumberLeftDir(shouldInsertNewElm);
+    shouldInsertNewElm && insertionNewElement();
 
     // console.log(existLocation);
     console.log(logger(gameStateArray));
 };
 
-const collectNumberRightDir = () => {
+const collectNumberRightDir = (haveInsertedElm) => {
+
+    let shouldInsertNewElm = false;
+
     for(let i = 0; i < gameStateArray.length; i++) {
         for (let j = gameStateArray.length - 1; j >= 0; j--) {
             if(gameStateArray[i][j] === false) {
@@ -154,15 +348,25 @@ const collectNumberRightDir = () => {
             
             if(gameStateArray[i][j] === gameStateArray[i][j-1] && gameStateArray[i][j] !== false) {
                 gameStateArray[i][j] += gameStateArray[i][j-1];
+                shouldInsertNewElm = true;
+                score += gameStateArray[i][j];
+                console.log(score);
                 gameStateArray[i].splice(j-1, 1);
                 gameStateArray[i].unshift(false);
             }
         }
     }
+    fillUiGrid();
+    if(shouldInsertNewElm && !haveInsertedElm) {
+        insertionNewElement();
+    }
+    updateScore(score);
     // console.log(existLocation);
 };
 
 const rightKeyHandler = () => {
+
+    let shouldInsertNewElm = false;
 
     for(let i = 0; i < gameStateArray.length; i++) {
 
@@ -176,6 +380,7 @@ const rightKeyHandler = () => {
         for(let j = fFIdx; j >= 0 ; j--) {
             
             if(gameStateArray[i][j] !== false) {
+                shouldInsertNewElm = true;
                 gameStateArray[i][fFIdx] = gameStateArray[i][j];
                 gameStateArray[i][j] = false;
                 // update existLocation
@@ -185,14 +390,17 @@ const rightKeyHandler = () => {
         }
     }
 
-    collectNumberRightDir();
-    insertionNewElement();
+    collectNumberRightDir(shouldInsertNewElm);
+    shouldInsertNewElm && insertionNewElement();
 
     // console.log(existLocation);
     console.log(logger(gameStateArray));
 };
 
-const collectNumberToptDir = () => {
+const collectNumberToptDir = (haveInsertedElm) => {
+
+    let shouldInsertNewElm = false;
+
     for(let j = 0; j < gameStateArray.length; j++) {
         for(let i = 0; i < gameStateArray.length; i++) {
             
@@ -206,6 +414,9 @@ const collectNumberToptDir = () => {
 
             if(gameStateArray[i][j] !== false && i + 1 < gameStateArray.length && gameStateArray[i][j] === gameStateArray[i+1][j]) {
                 gameStateArray[i][j] += gameStateArray[i+1][j];
+                shouldInsertNewElm = true;
+                score += gameStateArray[i][j];
+                console.log(score);
                 let count = i + 1;
                 while(count < gameStateArray.length - 1) {
                     gameStateArray[count][j] = gameStateArray[count + 1][j];
@@ -216,12 +427,21 @@ const collectNumberToptDir = () => {
     
         }
     }
+    fillUiGrid();
+    if(shouldInsertNewElm && !haveInsertedElm) {
+        insertionNewElement();
+    }
+    updateScore(score);
 
     // console.log(existLocation);
 };
 
 const topKeyHandler = () => {
+
+    let shouldInsertNewElm = false;
+
     for(let j = 0; j < gameStateArray.length; j++) {
+
 
         let fFIdx = null;
         for(let i = 0; i < gameStateArray.length ; i++) {
@@ -232,6 +452,7 @@ const topKeyHandler = () => {
             }
 
             if(gameStateArray[i][j] !== false && fFIdx !== null) {
+                shouldInsertNewElm = true;
                 gameStateArray[fFIdx][j] = gameStateArray[i][j];
                 gameStateArray[i][j] = false;
                 // update existLocation
@@ -261,15 +482,17 @@ const topKeyHandler = () => {
         // }
     }
 
-    collectNumberToptDir();
-    insertionNewElement();
+    collectNumberToptDir(shouldInsertNewElm);
+    shouldInsertNewElm && insertionNewElement();
 
     // console.log(existLocation);
     console.log(logger(gameStateArray));
 
 };
 
-const collectNumberbottomDir = () => {
+const collectNumberbottomDir = (haveInsertedElm) => {
+
+    let shouldInsertNewElm = false;
 
     for(let j = 0; j < gameStateArray.length; j++) {
         for(let i = gameStateArray.length - 1; i >= 0; i--) {
@@ -281,8 +504,11 @@ const collectNumberbottomDir = () => {
                 }
             }
 
-            if(gameStateArray[i][j] !== false && i - 1 > 0 && gameStateArray[i][j] === gameStateArray[i-1][j]) {
+            if(gameStateArray[i][j] !== false && i - 1 >= 0 && gameStateArray[i][j] === gameStateArray[i-1][j]) {
                 gameStateArray[i][j] += gameStateArray[i-1][j];
+                shouldInsertNewElm = true;
+                score += gameStateArray[i][j];
+                console.log(score);
                 let count = i - 1;
                 while(count > 0) {
                     gameStateArray[count][j] = gameStateArray[count - 1][j];
@@ -293,11 +519,18 @@ const collectNumberbottomDir = () => {
 
         }
     }
-    
+
+    fillUiGrid();
+    if(shouldInsertNewElm && !haveInsertedElm) {
+        insertionNewElement();
+    }
+    updateScore(score);
     // console.log(existLocation);
 };
 
 const bottomKeyHandler = () => {
+
+    let shouldInsertNewElm = false;
 
     for(let j = 0; j < gameStateArray.length; j++) {
 
@@ -309,6 +542,7 @@ const bottomKeyHandler = () => {
             }
                 
             if(gameStateArray[i][j] !== false && fFIdx !== null) {
+                shouldInsertNewElm = true;
                 gameStateArray[fFIdx][j] = gameStateArray[i][j];
                 gameStateArray[i][j] = false;
                 // update existLocation
@@ -340,8 +574,8 @@ const bottomKeyHandler = () => {
         // }
     }
 
-    collectNumberbottomDir();
-    insertionNewElement();
+    collectNumberbottomDir(shouldInsertNewElm);
+    shouldInsertNewElm && insertionNewElement();
 
     console.log(logger(gameStateArray));
     // console.log(existLocation);
@@ -370,6 +604,6 @@ const checkKey = event => {
 
 document.addEventListener('keydown', checkKey);
 
-initFillArr();
+createGameGrid();
 
 console.log(logger(gameStateArray));
